@@ -21,10 +21,75 @@
       font-size: 1.8em;
       font-weight: bold;
     }
+    .popup {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 18px;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      border-radius: 10px;
+      display: none;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
   <div class="title">2024 서울식물원 해봄축제 행사배치도</div>
   <img src="haebom_map.jpg" alt="2024 해봄축제 행사배치도">
+
+  <div id="popup1" class="popup">팝업1: 도시와 자연의 노래</div>
+  <div id="popup2" class="popup">팝업2: 숨겨진 오아시스</div>
+  <div id="popup3" class="popup">팝업3: 살아있는 벽의 노래</div>
+  <div id="popup4" class="popup">팝업4: 도시의 하늘정원</div>
+
+  <script>
+    const locations = [
+      { id: "popup1", lat: 37.504914, lng: 126.764177 },
+      { id: "popup2", lat: 37.505500, lng: 126.764500 },
+      { id: "popup3", lat: 37.506000, lng: 126.765000 },
+      { id: "popup4", lat: 37.507000, lng: 126.766000 }
+    ];
+
+    const R = 6371000;
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function updatePopups(position) {
+      const { latitude, longitude } = position.coords;
+      locations.forEach(loc => {
+        const dist = getDistance(latitude, longitude, loc.lat, loc.lng);
+        const el = document.getElementById(loc.id);
+        if (dist < 10) {
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    }
+
+    function error(err) {
+      alert("위치 정보를 가져올 수 없습니다: " + err.message);
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(updatePopups, error, {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 5000
+      });
+    } else {
+      alert("GPS를 지원하지 않는 브라우저입니다.");
+    }
+  </script>
 </body>
 </html>
