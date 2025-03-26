@@ -81,7 +81,7 @@
       }).addTo(map);
     });
 
-    let currentMarker, currentCircle;
+    let currentMarker;
     let shownPopups = {};
 
     function getDistance(lat1, lon1, lat2, lon2) {
@@ -99,10 +99,9 @@
       const radius = e.accuracy / 2;
 
       if (currentMarker) map.removeLayer(currentMarker);
-      if (currentCircle) map.removeLayer(currentCircle);
 
-      currentMarker = L.marker(e.latlng).addTo(map).bindPopup("📍 나의 위치").openPopup();
-      currentCircle = L.circle(e.latlng, radius).addTo(map);
+
+      currentMarker = L.marker(e.latlng).addTo(map);
 
       const userLat = e.latlng.lat;
       const userLng = e.latlng.lng;
