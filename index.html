@@ -82,7 +82,7 @@
           : "<div class='popup-label'>" + loc.name + "</div>"
       );
       L.circle([loc.lat, loc.lng], {
-        radius: 0,
+        radius: 70,
         color: 'transparent',
         fillColor: '#3fa',
         fillOpacity: 0.2
@@ -144,6 +144,18 @@
       [37.49591, 126.79557]   // bottom-right (남동)
     ];
     L.imageOverlay('haebom_map.jpeg', imageBounds).addTo(map);
+
+    
+    const myIcon = L.icon({
+      iconUrl: 'dung1.png',
+      iconSize: [60, 60],
+      iconAnchor: [30, 60],
+      className: 'animated-marker'
+    });
+
+    map.on('locationfound', function(e) {
+      L.marker(e.latlng, { icon: myIcon }).addTo(map);
+    });
 
     map.locate({ setView: true, maxZoom: 18, watch: true });
   </script>
