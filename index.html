@@ -82,6 +82,14 @@
     });
 
     let currentMarker;
+
+    const myLocationIcon = L.icon({
+      iconUrl: 'dung1.png',
+      iconSize: [60, 60],
+      iconAnchor: [30, 60],
+      className: 'animated-marker'
+    });
+
     let shownPopups = {};
 
     function getDistance(lat1, lon1, lat2, lon2) {
@@ -101,7 +109,7 @@
       if (currentMarker) map.removeLayer(currentMarker);
 
 
-      currentMarker = L.marker(e.latlng).addTo(map);
+            currentMarker = L.marker(e.latlng, { icon: myLocationIcon }).addTo(map);
 
       const userLat = e.latlng.lat;
       const userLng = e.latlng.lng;
