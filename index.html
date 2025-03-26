@@ -24,18 +24,6 @@
       box-shadow: 0 0 6px rgba(0,0,0,0.4);
     }
 
-
-    .leaflet-marker-icon.animated-marker {
-      border-radius: 50% !important;
-      overflow: hidden;
-      border: 0;
-      width: 96px !important;
-      height: 96px !important;
-      object-fit: cover;
-      background: none !important;
-      box-shadow: 0 0 6px rgba(0,0,0,0.3);
-    }
-
 </style>
 </head>
 <body>
@@ -94,7 +82,7 @@
           : "<div class='popup-label'>" + loc.name + "</div>"
       );
       L.circle([loc.lat, loc.lng], {
-        radius: 70,
+        radius: 0,
         color: 'transparent',
         fillColor: '#3fa',
         fillOpacity: 0.2
