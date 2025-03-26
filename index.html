@@ -3,7 +3,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>온더덩 위치기반 샘플</title>
+  <title>해봄 오버레이 지도</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -16,6 +16,20 @@
       font-weight: bold;
       color: #333;
     }
+    .leaflet-tooltip.custom-label {
+      background: rgba(255,255,255,0.8);
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 14px;
+    }
+    .animated-marker {
+      animation: bounce 1s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
   </style>
 </head>
 <body>
@@ -23,56 +37,56 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([37.50089, 126.79009], 17);
+    const map = L.map('map').setView([37.50089, 126.79009], 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 20,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
+    // 오버레이 이미지 설정
+    const imageBounds = [
+      [37.50554, 126.78362],  // top-left
+      [37.49591, 126.79557]   // bottom-right
+    ];
+    L.imageOverlay('haebom_map.jpeg', imageBounds).addTo(map);
+
     const icons = {
-      "온더덩": L.icon({
-        iconUrl: 'on1.png',
-        iconSize: [48, 48],
-        iconAnchor: [24, 48],
-        popupAnchor: [0, -48]
-      }),
-      "삼보테크노타워": L.icon({
-        iconUrl: 'st1.png',
-        iconSize: [48, 48],
-        iconAnchor: [24, 48],
-        popupAnchor: [0, -48]
-      }),
-      "금동국수": L.icon({
-        iconUrl: 'gold1.png',
-        iconSize: [48, 48],
-        iconAnchor: [24, 48],
-        popupAnchor: [0, -48]
-      }),
-      "춘의테크노파크2차": L.icon({
-        iconUrl: 'ct1.png',
-        iconSize: [48, 48],
-        iconAnchor: [24, 48],
-        popupAnchor: [0, -48]
-      })
+      "온더덩": 'on1.png',
+      "삼보테크노타워": 'st1.png',
+      "금동국수": 'gold1.png',
+      "춘의테크노파크2차": 'ct1.png'
     };
 
     const locations = [
-      { name: "온더덩", lat: 37.50089, lng: 126.79009 },
+      { name: "온더덩", lat: 37.50089, lng: 126.79009, url: "https://onthedung.com/" },
       { name: "삼보테크노타워", lat: 37.50200, lng: 126.79139 },
       { name: "금동국수", lat: 37.50240, lng: 126.78971 },
-      { name: "춘의테크노파크2차", lat: 37.50166, lng: 126.78835 },
+      { name: "춘의테크노파크2차", lat: 37.50166, lng: 126.78835 }
     ];
 
-    // 반경 원 및 마커 설정
     locations.forEach(loc => {
-      L.marker([loc.lat, loc.lng], {
-        icon: icons[loc.name] || undefined
-      }).addTo(map).bindPopup(
-        loc.name === "온더덩"
-          ? "<div class='popup-label'><a href='https://onthedung.com/' target='_blank' style='color:#333;text-decoration:underline;'>" + loc.name + "</a></div>"
-          : "<div class='popup-label'>" + loc.name + "</div>"
-      );
+      const icon = L.icon({
+        iconUrl: icons[loc.name],
+        iconSize: [48, 48],
+        iconAnchor: [24, 48],
+        className: 'animated-marker'
+      });
+
+      const marker = L.marker([loc.lat, loc.lng], { icon }).addTo(map);
+
+      marker.bindTooltip(loc.name, {
+        permanent: true,
+        direction: "top",
+        className: "custom-label"
+      }).openTooltip();
+
+      if (loc.url) {
+        marker.bindPopup(`<div class='popup-label'><a href='${loc.url}' target='_blank'>${loc.name}</a></div>`).openPopup();
+      } else {
+        marker.bindPopup(`<div class='popup-label'>${loc.name}</div>`);
+      }
+
       L.circle([loc.lat, loc.lng], {
         radius: 70,
         color: 'blue',
@@ -80,56 +94,6 @@
         fillOpacity: 0.2
       }).addTo(map);
     });
-
-    let currentMarker, currentCircle;
-    let shownPopups = {};
-
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371000;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    }
-
-    function onLocationFound(e) {
-      const radius = e.accuracy / 2;
-
-      if (currentMarker) map.removeLayer(currentMarker);
-      if (currentCircle) map.removeLayer(currentCircle);
-
-      currentMarker = L.marker(e.latlng).addTo(map).bindPopup("📍 나의 위치").openPopup();
-      currentCircle = L.circle(e.latlng, radius).addTo(map);
-
-      const userLat = e.latlng.lat;
-      const userLng = e.latlng.lng;
-
-      locations.forEach(loc => {
-        const dist = getDistance(userLat, userLng, loc.lat, loc.lng);
-        if (dist < 70 && !shownPopups[loc.name]) {
-          const content = loc.name === "온더덩"
-            ? "<div class='popup-label'><a href='https://onthedung.com/' target='_blank'>" + loc.name + "</a></div>"
-            : "<div class='popup-label'>" + loc.name + "</div>";
-          L.popup()
-            .setLatLng([loc.lat, loc.lng])
-            .setContent(content)
-            .openOn(map);
-          shownPopups[loc.name] = true;
-        }
-      });
-    }
-
-    function onLocationError(e) {
-      alert("위치 정보를 가져올 수 없습니다: " + e.message);
-    }
-
-    map.on('locationfound', onLocationFound);
-    map.on('locationerror', onLocationError);
-
-    map.locate({ setView: true, maxZoom: 18, watch: true });
   </script>
 </body>
 </html>
