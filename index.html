@@ -16,7 +16,15 @@
       font-weight: bold;
       color: #333;
     }
-  </style>
+  
+    .leaflet-marker-icon.animated-marker {
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid white;
+      box-shadow: 0 0 6px rgba(0,0,0,0.4);
+    }
+
+</style>
 </head>
 <body>
   <div id="map"></div>
@@ -74,7 +82,7 @@
           : "<div class='popup-label'>" + loc.name + "</div>"
       );
       L.circle([loc.lat, loc.lng], {
-        radius: 70,
+        radius: 0,
         color: 'transparent',
         fillColor: '#3fa',
         fillOpacity: 0.2
