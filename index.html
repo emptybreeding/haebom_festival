@@ -1,122 +1,67 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>2024 서울식물원 해봄축제 안내 시스템</title>
+  <title>Leaflet 기반 GPS 팝업 시스템</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body {
+    html, body, #map {
+      height: 100%;
       margin: 0;
-      font-family: 'Arial', sans-serif;
-      background: #fdf6f9;
-      text-align: center;
+      padding: 0;
     }
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-    .title {
-      padding: 20px;
-      font-size: 2em;
+    .popup-label {
       font-weight: bold;
-    }
-    .popup {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 18px 24px;
-      background: #2b2b2b;
-      color: #fff;
-      border-radius: 12px;
-      font-size: 1.2em;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      display: none;
-      z-index: 1000;
-      cursor: pointer;
-    }
-    .marker {
-      position: absolute;
-      width: 18px;
-      height: 18px;
-      background: red;
-      border-radius: 50%;
-      z-index: 500;
-      opacity: 0.6;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <div class="title">2024 서울식물원 해봄축제 행사배치도</div>
-  <div style="position: relative;">
-    <img src="haebom_map.jpg" alt="2024 해봄축제 행사배치도" />
-    <!-- 마커 예시 (절대 위치는 추후 조정 가능) -->
-    <div class="marker" style="top: 200px; left: 40%;"></div>
-    <div class="marker" style="top: 300px; left: 50%;"></div>
-    <div class="marker" style="top: 400px; left: 60%;"></div>
-    <div class="marker" style="top: 500px; left: 30%;"></div>
-    <div class="marker" style="top: 600px; left: 70%;"></div>
-  </div>
+  <div id="map"></div>
 
-  <div id="popup1" class="popup" onclick="window.open('https://example.com/popup1', '_blank')">팝업1: 도시와 자연의 노래</div>
-  <div id="popup2" class="popup" onclick="window.open('https://example.com/popup2', '_blank')">팝업2: 숨겨진 오아시스</div>
-  <div id="popup3" class="popup" onclick="window.open('https://example.com/popup3', '_blank')">팝업3: 살아있는 벽의 노래</div>
-  <div id="popup4" class="popup" onclick="window.open('https://example.com/popup4', '_blank')">팝업4: 도시의 하늘정원</div>
-  <div id="popup5" class="popup" onclick="window.open('https://example.com/popup5', '_blank')">팝업5: 현재 위치 기준 안내</div>
-
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
+    const map = L.map('map').setView([37.504914, 126.764177], 16);
+
+    // 기본 OpenStreetMap 타일 레이어
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 20,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 행사 장소 5개 위치 마커
     const locations = [
-      { id: "popup1", lat: 37.504914, lng: 126.764177 },
-      { id: "popup2", lat: 37.505500, lng: 126.764500 },
-      { id: "popup3", lat: 37.506000, lng: 126.765000 },
-      { id: "popup4", lat: 37.507000, lng: 126.766000 },
-      { id: "popup5", lat: 37.470979, lng: 126.819444 }
+      { name: "팝업1: 도시와 자연의 노래", lat: 37.504914, lng: 126.764177 },
+      { name: "팝업2: 숨겨진 오아시스", lat: 37.505500, lng: 126.764500 },
+      { name: "팝업3: 살아있는 벽의 노래", lat: 37.506000, lng: 126.765000 },
+      { name: "팝업4: 도시의 하늘정원", lat: 37.507000, lng: 126.766000 },
+      { name: "팝업5: 현재 위치 기준 안내", lat: 37.470979, lng: 126.819444 }
     ];
 
-    const R = 6371000;
-    const popupRadius = 25;
+    locations.forEach(loc => {
+      const marker = L.marker([loc.lat, loc.lng]).addTo(map);
+      marker.bindPopup(`<div class="popup-label">${loc.name}</div>`);
+    });
 
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
+    // 사용자 현재 위치 추적
+    function onLocationFound(e) {
+      const radius = e.accuracy / 2;
+      L.marker(e.latlng).addTo(map)
+        .bindPopup("📍 현재 위치")
+        .openPopup();
+      L.circle(e.latlng, radius).addTo(map);
     }
 
-    function updatePopups(position) {
-      const { latitude, longitude } = position.coords;
-      let active = false;
-      locations.forEach(loc => {
-        const dist = getDistance(latitude, longitude, loc.lat, loc.lng);
-        const el = document.getElementById(loc.id);
-        if (dist < popupRadius) {
-          el.style.display = 'block';
-          active = true;
-        } else {
-          el.style.display = 'none';
-        }
-      });
-      if (!active) {
-        console.log("현재 위치에 해당하는 팝업 없음");
-      }
+    function onLocationError(e) {
+      alert("위치 정보를 가져올 수 없습니다: " + e.message);
     }
 
-    function error(err) {
-      alert("위치 정보를 가져올 수 없습니다: " + err.message);
-    }
+    map.on('locationfound', onLocationFound);
+    map.on('locationerror', onLocationError);
 
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(updatePopups, error, {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: 5000
-      });
-    } else {
-      alert("이 브라우저는 GPS를 지원하지 않습니다.");
-    }
+    map.locate({ setView: true, maxZoom: 18, watch: true });
   </script>
 </body>
 </html>
