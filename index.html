@@ -3,7 +3,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>온더덩 위치기반 샘플</title>
+  <title>온더덩 지도</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -33,25 +33,25 @@
     const icons = {
       "온더덩": L.icon({
         iconUrl: 'on1.png',
-        iconSize: [48, 48],
+        iconSize: [66, 66],
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
       }),
       "삼보테크노타워": L.icon({
         iconUrl: 'st1.png',
-        iconSize: [48, 48],
+        iconSize: [66, 66],
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
       }),
       "금동국수": L.icon({
         iconUrl: 'gold1.png',
-        iconSize: [48, 48],
+        iconSize: [66, 66],
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
       }),
       "춘의테크노파크2차": L.icon({
         iconUrl: 'ct1.png',
-        iconSize: [48, 48],
+        iconSize: [66, 66],
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
       })
@@ -74,7 +74,7 @@
           : "<div class='popup-label'>" + loc.name + "</div>"
       );
       L.circle([loc.lat, loc.lng], {
-        radius: 70,
+        radius: 0,
         color: 'blue',
         fillColor: '#3fa',
         fillOpacity: 0.2
