@@ -54,7 +54,44 @@
     });
 
     // 사용자 현재 위치 추적
+    
+    let currentMarker, currentCircle;
     function onLocationFound(e) {
+      const radius = e.accuracy / 2;
+
+      if (currentMarker) map.removeLayer(currentMarker);
+      if (currentCircle) map.removeLayer(currentCircle);
+
+      currentMarker = L.marker(e.latlng).addTo(map).bindPopup("📍 나의 위치").openPopup();
+      currentCircle = L.circle(e.latlng, radius).addTo(map);
+
+      // 자동 팝업 표시
+      const userLat = e.latlng.lat;
+      const userLng = e.latlng.lng;
+
+      locations.forEach(loc => {
+        const dist = getDistance(userLat, userLng, loc.lat, loc.lng);
+        if (dist < 70) {
+          const tempPopup = L.popup()
+            .setLatLng([loc.lat, loc.lng])
+            .setContent(`<div class="popup-label">${loc.name}</div>`)
+            .openOn(map);
+        }
+      });
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const toRad = Math.PI / 180;
+      const dLat = (lat2 - lat1) * toRad;
+      const dLon = (lon2 - lon1) * toRad;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+    
       const radius = e.accuracy / 2;
       L.marker(e.latlng).addTo(map)
         .bindPopup("📍 나의 위치")
