@@ -109,7 +109,7 @@
       if (currentMarker) map.removeLayer(currentMarker);
       if (currentCircle) map.removeLayer(currentCircle);
 
-      currentMarker = L.marker(e.latlng).addTo(map).bindPopup("📍 나의 위치").openPopup();
+      currentMarker = L.marker(e.latlng).addTo(map)..openPopup();
       currentCircle = L.circle(e.latlng, radius).addTo(map);
 
       const userLat = e.latlng.lat;
