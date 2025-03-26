@@ -41,6 +41,14 @@
     ];
 
     locations.forEach(loc => {
+      // 반경 25m 시각화
+      L.circle([loc.lat, loc.lng], {
+        radius: 25,
+        color: 'blue',
+        fillColor: '#3fa',
+        fillOpacity: 0.2
+      }).addTo(map);
+
       const marker = L.marker([loc.lat, loc.lng]).addTo(map);
       marker.bindPopup(`<div class="popup-label">${loc.name}</div>`);
     });
