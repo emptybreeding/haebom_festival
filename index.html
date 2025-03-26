@@ -16,15 +16,7 @@
       font-weight: bold;
       color: #333;
     }
-  
-    .leaflet-marker-icon.animated-marker {
-      border-radius: 50%;
-      overflow: hidden;
-      border: 2px solid white;
-      box-shadow: 0 0 6px rgba(0,0,0,0.4);
-    }
-
-</style>
+  </style>
 </head>
 <body>
   <div id="map"></div>
@@ -41,25 +33,25 @@
     const icons = {
       "온더덩": L.icon({
         iconUrl: 'on1.png',
-        iconSize: [96, 96],
+        iconSize: [48, 48],
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
       }),
       "삼보테크노타워": L.icon({
         iconUrl: 'st1.png',
-        iconSize: [96, 96],
+        iconSize: [48, 48],
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
       }),
       "금동국수": L.icon({
         iconUrl: 'gold1.png',
-        iconSize: [96, 96],
+        iconSize: [48, 48],
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
       }),
       "춘의테크노파크2차": L.icon({
         iconUrl: 'ct1.png',
-        iconSize: [96, 96],
+        iconSize: [48, 48],
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
       })
@@ -82,8 +74,8 @@
           : "<div class='popup-label'>" + loc.name + "</div>"
       );
       L.circle([loc.lat, loc.lng], {
-        radius: 0,
-        color: 'transparent',
+        radius: 70,
+        color: 'blue',
         fillColor: '#3fa',
         fillOpacity: 0.2
       }).addTo(map);
@@ -144,18 +136,6 @@
       [37.49591, 126.79557]   // bottom-right (남동)
     ];
     L.imageOverlay('haebom_map.jpeg', imageBounds).addTo(map);
-
-    
-    const myIcon = L.icon({
-      iconUrl: 'dung1.png',
-      iconSize: [60, 60],
-      iconAnchor: [30, 60],
-      className: 'animated-marker'
-    });
-
-    map.on('locationfound', function(e) {
-      L.marker(e.latlng, { icon: myIcon }).addTo(map);
-    });
 
     map.locate({ setView: true, maxZoom: 18, watch: true });
   </script>
