@@ -3,7 +3,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>Leaflet 기반 GPS 팝업 시스템</title>
+  <title>Leaflet 지도 정리 버전</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -23,15 +23,13 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([37.504914, 126.764177], 16);
+    const map = L.map('map').setView([37.50089, 126.79009], 17);
 
-    // 기본 OpenStreetMap 타일 레이어
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 20,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // 행사 장소 5개 위치 마커
     const locations = [
       { name: "팝업1: 도시와 자연의 노래", lat: 37.50089, lng: 126.79009 },
       { name: "팝업2: 숨겨진 오아시스", lat: 37.50200, lng: 126.79139 },
@@ -40,23 +38,34 @@
       { name: "팝업5: 현재 위치 기준 안내", lat: 37.470979, lng: 126.819444 }
     ];
 
+    // 반경 원 및 마커 설정
     locations.forEach(loc => {
-      // 반경 25m 시각화
+      L.marker([loc.lat, loc.lng]).addTo(map).bindPopup(`<div class="popup-label">${loc.name}</div>`);
       L.circle([loc.lat, loc.lng], {
         radius: 70,
         color: 'blue',
         fillColor: '#3fa',
         fillOpacity: 0.2
       }).addTo(map);
-
-      const marker = L.marker([loc.lat, loc.lng]).addTo(map);
-      marker.bindPopup(`<div class="popup-label">${loc.name}</div>`);
     });
 
-    // 사용자 현재 위치 추적
-    
     let currentMarker, currentCircle;
+
+    
+    let shownPopups = {};
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
     function onLocationFound(e) {
+
       const radius = e.accuracy / 2;
 
       if (currentMarker) map.removeLayer(currentMarker);
@@ -65,38 +74,20 @@
       currentMarker = L.marker(e.latlng).addTo(map).bindPopup("📍 나의 위치").openPopup();
       currentCircle = L.circle(e.latlng, radius).addTo(map);
 
-      // 자동 팝업 표시
       const userLat = e.latlng.lat;
       const userLng = e.latlng.lng;
 
       locations.forEach(loc => {
         const dist = getDistance(userLat, userLng, loc.lat, loc.lng);
-        if (dist < 70) {
-          const tempPopup = L.popup()
+        if (dist < 70 && !shownPopups[loc.name]) {
+          const popup = L.popup()
             .setLatLng([loc.lat, loc.lng])
             .setContent(`<div class="popup-label">${loc.name}</div>`)
-            );
+            .openOn(map);
+          shownPopups[loc.name] = true;
         }
       });
-    }
 
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371000;
-      const toRad = Math.PI / 180;
-      const dLat = (lat2 - lat1) * toRad;
-      const dLon = (lon2 - lon1) * toRad;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * toRad) * Math.cos(lat2 * toRad) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-    
-      const radius = e.accuracy / 2;
-      L.marker(e.latlng).addTo(map)
-        .bindPopup("📍 나의 위치")
-        .openPopup();
-      L.circle(e.latlng, radius).addTo(map);
     }
 
     function onLocationError(e) {
