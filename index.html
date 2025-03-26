@@ -57,7 +57,7 @@
     function onLocationFound(e) {
       const radius = e.accuracy / 2;
       L.marker(e.latlng).addTo(map)
-        .bindPopup("📍 현재 위치")
+        .bindPopup("📍 나의 위치")
         .openPopup();
       L.circle(e.latlng, radius).addTo(map);
     }
