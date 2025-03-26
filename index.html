@@ -1,14 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>2024 서울식물원<br>해봄축제 행사배치도</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2024 서울식물원 해봄축제 안내 시스템</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       background: #fdf6f9;
       text-align: center;
     }
@@ -18,7 +17,7 @@
     }
     .title {
       padding: 20px;
-      font-size: 1.8em;
+      font-size: 2em;
       font-weight: bold;
     }
     .popup {
@@ -26,24 +25,44 @@
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 12px 18px;
-      background: rgba(0,0,0,0.8);
+      padding: 18px 24px;
+      background: #2b2b2b;
       color: #fff;
-      border-radius: 10px;
+      border-radius: 12px;
+      font-size: 1.2em;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       display: none;
       z-index: 1000;
+      cursor: pointer;
+    }
+    .marker {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: red;
+      border-radius: 50%;
+      z-index: 500;
+      opacity: 0.6;
     }
   </style>
 </head>
 <body>
-  <div class="title">2024 서울식물원<br>해봄축제 행사배치도</div>
-  <img src="haebom_map.jpg" alt="2024 해봄축제 행사배치도">
+  <div class="title">2024 서울식물원 해봄축제 행사배치도</div>
+  <div style="position: relative;">
+    <img src="haebom_map.jpg" alt="2024 해봄축제 행사배치도" />
+    <!-- 마커 예시 (절대 위치는 추후 조정 가능) -->
+    <div class="marker" style="top: 200px; left: 40%;"></div>
+    <div class="marker" style="top: 300px; left: 50%;"></div>
+    <div class="marker" style="top: 400px; left: 60%;"></div>
+    <div class="marker" style="top: 500px; left: 30%;"></div>
+    <div class="marker" style="top: 600px; left: 70%;"></div>
+  </div>
 
-  <div id="popup1" class="popup">팝업1: 도시와 자연의 노래</div>
-  <div id="popup2" class="popup">팝업2: 숨겨진 오아시스</div>
-  <div id="popup3" class="popup">팝업3: 살아있는 벽의 노래</div>
-  <div id="popup4" class="popup">팝업4: 도시의 하늘정원</div>
-  <div id="popup5" class="popup">팝업5: 현재 위치 기준 안내</div>
+  <div id="popup1" class="popup" onclick="window.open('https://example.com/popup1', '_blank')">팝업1: 도시와 자연의 노래</div>
+  <div id="popup2" class="popup" onclick="window.open('https://example.com/popup2', '_blank')">팝업2: 숨겨진 오아시스</div>
+  <div id="popup3" class="popup" onclick="window.open('https://example.com/popup3', '_blank')">팝업3: 살아있는 벽의 노래</div>
+  <div id="popup4" class="popup" onclick="window.open('https://example.com/popup4', '_blank')">팝업4: 도시의 하늘정원</div>
+  <div id="popup5" class="popup" onclick="window.open('https://example.com/popup5', '_blank')">팝업5: 현재 위치 기준 안내</div>
 
   <script>
     const locations = [
@@ -55,6 +74,7 @@
     ];
 
     const R = 6371000;
+    const popupRadius = 25;
 
     function getDistance(lat1, lon1, lat2, lon2) {
       const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -68,15 +88,20 @@
 
     function updatePopups(position) {
       const { latitude, longitude } = position.coords;
+      let active = false;
       locations.forEach(loc => {
         const dist = getDistance(latitude, longitude, loc.lat, loc.lng);
         const el = document.getElementById(loc.id);
-        if (dist < 20) {
+        if (dist < popupRadius) {
           el.style.display = 'block';
+          active = true;
         } else {
           el.style.display = 'none';
         }
       });
+      if (!active) {
+        console.log("현재 위치에 해당하는 팝업 없음");
+      }
     }
 
     function error(err) {
@@ -90,7 +115,7 @@
         timeout: 5000
       });
     } else {
-      alert("GPS를 지원하지 않는 브라우저입니다.");
+      alert("이 브라우저는 GPS를 지원하지 않습니다.");
     }
   </script>
 </body>
